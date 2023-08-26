@@ -8,7 +8,7 @@ const GameCurency=require("../model/gameMoney");
 
 require("dotenv").config();
 
-//send OTP
+// send OTP
 exports.sendOTP=async(req,res)=>{
 
     try {
@@ -62,7 +62,7 @@ exports.sendOTP=async(req,res)=>{
     }
 };
 
-//sign in api
+// sign in api 
 exports.signup=async(req,res)=>{
 
     try {
@@ -70,8 +70,6 @@ exports.signup=async(req,res)=>{
             firstName,
             lastName,
             email,
-            password,
-            confirmPassword,
             accountType,
             contactNumber,
             otp
@@ -79,7 +77,7 @@ exports.signup=async(req,res)=>{
 
        //check password match or not
         // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
-        if(!firstName || !lastName || !email || !password || !confirmPassword || !otp)
+        if(!firstName || !lastName || !email || !contactNumber || !otp)
         {
             return res.status(403).json({
                 success:false,
@@ -87,13 +85,7 @@ exports.signup=async(req,res)=>{
             })
         }   
         
-         // check password === confirmPassword
-         if(password !==confirmPassword){
-            return res.status(401).json({
-                success:false,
-                message:"password did not match"
-            })
-        }
+       
 
          // check user already present
          if(await User.findOne({email}))
@@ -125,15 +117,14 @@ exports.signup=async(req,res)=>{
         });
        }
 
-       //hash password
-       const hashPassword =await bcrypt.hash(password,10); 
+
 
        //create crossponding Profile collection which use in additionals details
        const profile= await Profile.create({
         gender:null,
         dateOfBirth:null,
         about:null,
-        contactNumber:null
+      
        });
 
        const gameCoin=await GameCurency.create({coins:0})
@@ -144,7 +135,6 @@ exports.signup=async(req,res)=>{
         lastName,
         email,
         contactNumber,
-        password:hashPassword,
         accountType,
         additonalDetails:profile._id,
         gameMoney:gameCoin._id,
@@ -165,7 +155,7 @@ exports.signup=async(req,res)=>{
     }
 }
 
-//login api
+// login api
 exports.login=async(req,res)=>{
 
     try {
@@ -235,6 +225,62 @@ exports.login=async(req,res)=>{
             success:false,
             message:"Login fail eroor in network call",
             data:error.message
+        })
+    }
+}
+
+// mobile otp snding
+exports.mobileOtpSender=async(req,res)=>{
+
+    try {
+        const { phoneNumber } = req.body;
+        const userExsist=await User.findOne({phoneNumber});
+
+        if(userExsist){
+            return res.status(400).json({
+                success:false,
+                message:"User already present "
+            })
+        }
+       
+         // generate otp
+      var otp=otpGenerator.generate(6,{
+        upperCaseAlphabets:false,
+        lowerCaseAlphabets:false,
+        specialChars:false
+      });
+
+      const otpPayload={phoneNumber ,otp};
+      const otpBody=await OTP.create(otpPayload);
+
+      const message=`Your otp is ${otp}`
+
+      const response = await axios.post('https://enterprise.smsgupshup.com/GatewayAPI/rest', {
+        method: 'SendMessage',
+        send_to: phoneNumber,
+        msg: message,
+        msg_type: 'TEXT',
+        userid: process.env.apiKey,
+        auth_scheme: 'plain',
+        password: process.env.apiKey,
+        v: '1.1',
+        format: 'text',
+        mask:process.env.senderId,
+      });
+  
+      console.log(response);
+      return res.status(200).json({
+        success:true, 
+        message:"Otp send successfully"
+      })
+     
+    } catch (error) {
+        
+        console.log(error.message);
+        return res.status(400).json({
+            success:false,
+            mesage:"Faild to send otp",
+            fault:error.message
         })
     }
 }

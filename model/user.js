@@ -17,10 +17,7 @@ const userSchema= new mongoose.Schema({
         required:true,
         trim:true
     },
-    password:{
-        type:String,
-        required:true
-    },
+  
     // Define the role field with type String and enum values of "Admin", "Student", or "Visitor"
     accountType:{
         type:String,
@@ -33,6 +30,10 @@ const userSchema= new mongoose.Schema({
     },
     approved: {
         type: Boolean,
+        default: true,
+    },
+    phone:{
+        type:Number,
         default: true,
     },
     additonalDetails:{
