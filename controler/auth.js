@@ -1,14 +1,20 @@
 const bcrypt=require("bcrypt");
 const User=require("../model/user")
 const OTP=require("../model/otp")
+const EmailOTP=require("../model/emailOtp")
 const otpGenerator=require("otp-generator")
 const Profile=require("../model/profile");
 const jwt=require("jsonwebtoken");
 const GameCurency=require("../model/gameMoney");
 
+const mailsender=require("../mail/mailSender");
+const emailOtp = require("../model/emailOtp");
+const Admin=require("../model/admin");
+
+
 require("dotenv").config();
 
-// send OTP
+// send OTP via email for admin verification
 exports.sendOTP=async(req,res)=>{
 
     try {
@@ -16,12 +22,6 @@ exports.sendOTP=async(req,res)=>{
         const{email}=req.body;
         const userExsist=await User.findOne({email});
 
-        if(userExsist){
-            return res.status(400).json({
-                success:false,
-                message:"User already present "
-            })
-        }
 
         // generate otp
       var otp=otpGenerator.generate(6,{
@@ -31,7 +31,7 @@ exports.sendOTP=async(req,res)=>{
       });
 
       //check the unique otp or not
-      let result= await OTP.findOne({otp:otp});
+      let result= await EmailOTP.findOne({otp:otp});
 
       while(result)
       {
@@ -40,12 +40,13 @@ exports.sendOTP=async(req,res)=>{
             lowerCaseAlphabets:false,
             specialChars:false
           });
-          result= await OTP.findOne({otp:otp});
+          result= await EmailOTP.findOne({otp:otp});
       }
 
       const otpPayload={email ,otp};
-      const otpBody=await OTP.create(otpPayload);
-
+      const otpBody=await EmailOTP.create(otpPayload);
+      
+      await mailsender(email,"OTP verification",otp);
       
       res.status(200).json({
         success:true,
@@ -61,6 +62,73 @@ exports.sendOTP=async(req,res)=>{
         })
     }
 };
+
+//verify otp/sign in for api for admin
+exports.verifyOtp=async(req,res)=>{
+
+    try {
+
+        const{otp,email}=req.body;
+        
+        console.log(otp,email);
+        const recentOTP=await emailOtp.findOne({email:email}).sort({createdAt:-1}).limit(1);
+
+
+        let user=await Admin.findOne({ email})
+        if(recentOTP.length ===0)
+       {
+        return res.status(400).json({
+            success:false,
+            message:"OTP not found"
+        })
+       }
+
+       else if(otp !==recentOTP.otp){
+        return res.status(401).json({
+            success:false,
+            message:"Invalid otp",
+            data:otp,
+            op:recentOTP
+        });
+    } 
+
+    else{
+           // create JWT tokens
+           const payload={
+            email:user.email,
+            id:user._id,
+            role: user.accountType
+        }
+       
+        //payload , secretkey ,options
+        const token=jwt.sign(payload,process.env.JWT_SECRET,{
+            expiresIn: "1w"
+        });
+        user.token=token;
+        user.password=undefined;
+      
+        //create cookie
+        const options={
+                     maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
+                     httpOnly: true
+               }
+      return   res.cookie("token",  token, options).status(200).json({
+            success:true,
+            token,
+            user,
+            message:`Logedin successfully and token id ${token}`
+
+        })
+    }
+  }
+    catch (error) {
+        console.log(error.message);
+        return res.status(400).json({
+            success:false,
+            message:error
+        })
+    }
+}
 
 // sign in api 
 exports.signup=async(req,res)=>{
@@ -229,7 +297,7 @@ exports.login=async(req,res)=>{
     }
 }
 
-// mobile otp snding
+// mobile otp snding for gammer
 exports.mobileOtpSender=async(req,res)=>{
 
     try {

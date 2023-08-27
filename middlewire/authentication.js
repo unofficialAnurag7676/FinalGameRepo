@@ -3,45 +3,51 @@ require("dotenv").config();
 const jwt=require("jsonwebtoken");
 
 //auth
-exports.auth=async(req,res,next)=>{
+exports.auth = async (req, res, next) => {
     try {
-       
-       const token = req.cookies.token 
-       || req.body.token 
-       || req.header("Authorization").replace("Bearer ", "");
-   
-   
-   
-       if(!token)
-       {
-           return res.status(400).json({
-               success:false,
-               message:"token not found",
-               
-           })
-       }
-       try {
-           // jwt.verify() return payload
-           const decode= jwt.verify(token, process.env.JWT_SECRET);
-   
-           // insert the payload in requset 
-            req.user=decode;
-       } catch (error) {
-           return res.status(403).json({
-               success:false,
-               message:"token is invalid"
-           })
-       }
-       next();
+        let token = req.cookies.token || req.body.token || '';
+
+        // If the token is provided in the Authorization header, override the other sources
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+            token = req.headers.authorization.replace("Bearer ", "");
+        }
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: "Token not found",
+            });
+        }
+
+        try {
+            const decode = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Check for token expiration here if needed
+            // const now = Date.now().valueOf() / 1000;
+            // if (decode.exp < now) {
+            //     return res.status(403).json({
+            //         success: false,
+            //         message: "Token has expired",
+            //     });
+            // }
+
+            req.user = decode;
+            next();
+        } catch (error) {
+            return res.status(403).json({
+                success: false,
+                message: "Token is invalid",
+            });
+        }
     } catch (error) {
-       return res.status(405).json({
-           success:false,
-           message:"token verification failed",
-           data:error.message
-       })
+        return res.status(405).json({
+            success: false,
+            message: "Token verification failed",
+            data: error.message,
+        });
     }
-     
-}
+};
+
 
 //confirm gammer account
 exports.isGammer=async(req,res,next)=>{
@@ -72,7 +78,7 @@ exports.isAdmin=async(req,res,next)=>{
         {
             return res.status(500).json({
                 success:false,
-                message:"You are not a admin bro"
+                message:"Something went wrong from client side"
             })
         }
         next();

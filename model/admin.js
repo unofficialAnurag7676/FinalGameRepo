@@ -9,7 +9,6 @@ const userSchema= new mongoose.Schema({
     },
     lastName:{
         type:String,
-        required:true,
         trim:true
     },
     email:{
@@ -22,42 +21,21 @@ const userSchema= new mongoose.Schema({
     accountType:{
         type:String,
         required:true,
-        enum:["Gammer"]
+        enum:["Admin"]
     },
-
-    active: {
-        type: Boolean,
-        default: true,
-    },
- 
-    phone:{
-        type:Number,
-        default: true,
-        require:true,
-    },
-
+    
 
     //token for reset password
     token:{
         type:String
     },
 
-    gameMoney:{
-        type:Number,
-        default:0,
-        required:true
-        
-    },
 
     resetPassExpires:{
         type:Date
     },
 
-    image:{
-        type:String,
-        
-    },
   
 });
 
-module.exports=mongoose.model("User", userSchema);
+module.exports=mongoose.model("Admin", userSchema);

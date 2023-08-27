@@ -12,11 +12,11 @@ router.get(
     (req, res) => {
         if (!req.user) {
             // User not found, handle the response here
-            console.log("responce",req);
+            console.log("responce",req.profileData);
             return res.status(301).json({
                 success: false,
                 message: "User not found",
-               // profile: req.authInfo.profileData, // Access profileData from authInfo
+                profile: req?.profileData, // Access profileData from authInfo
             });
         }
         if(user)
