@@ -20,19 +20,18 @@ passport.use(
         async (accessToken, refreshToken, profile, done) => {
             try {
 
-                console.log(profile)
                 // Getting email
                 const userEmail = profile.emails.find(email => email.verified);
 
                 // Find the user based on Google profile data
                 const user = await User.findOne({ email: userEmail.value });
-
+                
                 if (user) {
                     // User already exists, return the user
-                    return done(null, user);
+                    return done(false, {userData:user ,inDB:true});
                 } else {
                     // User not found, return false with profile data
-                    return done(null, false, { profileData: profile });
+                    return done(false, { profileData: profile });
                 }
             } catch (error) {
                 done(error, false);

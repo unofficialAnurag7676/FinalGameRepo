@@ -3,9 +3,8 @@ const User=require("../model/user")
 const OTP=require("../model/otp")
 const EmailOTP=require("../model/emailOtp")
 const otpGenerator=require("otp-generator")
-const Profile=require("../model/profile");
 const jwt=require("jsonwebtoken");
-const GameCurency=require("../model/gameMoney");
+
 
 const mailsender=require("../mail/mailSender");
 const emailOtp = require("../model/emailOtp");
@@ -63,7 +62,7 @@ exports.sendOTP=async(req,res)=>{
     }
 };
 
-//verify otp/sign in for api for admin
+//verify otp/sign in for api for Admin
 exports.verifyOtp=async(req,res)=>{
 
     try {
@@ -130,7 +129,7 @@ exports.verifyOtp=async(req,res)=>{
     }
 }
 
-// sign in api 
+// sign in api for Gammer
 exports.signup=async(req,res)=>{
 
     try {
@@ -140,12 +139,10 @@ exports.signup=async(req,res)=>{
             email,
             accountType,
             contactNumber,
-            otp
              }=req.body;
 
-       //check password match or not
         // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
-        if(!firstName || !lastName || !email || !contactNumber || !otp)
+        if(!firstName || !lastName || !email || !contactNumber || !accountType)
         {
             return res.status(403).json({
                 success:false,
@@ -164,57 +161,48 @@ exports.signup=async(req,res)=>{
              })
          }
 
-        
-        //find most recent otp
-        const recentOTP=await OTP.findOne({email:email}).sort({createdAt:-1}).limit(1);
-        
-        if(recentOTP.length ===0)
-       {
-        return res.status(400).json({
-            success:false,
-            message:"OTP not found"
-        })
-       }
-
-       else if(otp !==recentOTP.otp){
-        return res.status(401).json({
-            success:false,
-            message:"Invalid otp",
-            data:otp,
-            op:recentOTP
-        });
-       }
-
-
-
-       //create crossponding Profile collection which use in additionals details
-       const profile= await Profile.create({
-        gender:null,
-        dateOfBirth:null,
-        about:null,
-      
-       });
-
-       const gameCoin=await GameCurency.create({coins:0})
-      
        //finaly create user in Data Base
        const user=await User.create({
         firstName,
         lastName,
         email,
         contactNumber,
+        gameMoney:0,
         accountType,
-        additonalDetails:profile._id,
-        gameMoney:gameCoin._id,
         image:`https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
        });
 
-       return res.status(200).json({
+       //create token for token
+       const payload={
+        email:user.email,
+        id:user._id,
+        role: user.accountType
+    }
+   
+    //payload , secretkey ,options
+    const token=jwt.sign(payload,process.env.JWT_SECRET,{
+        expiresIn: "1w"
+    });
+    user.token=token;
+  
+    //create cookie
+    const options={
+        maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
+        httpOnly: true
+    }
+
+    return res.cookie("token",  token, options).status(200).json({
         success:true,
-        message:"User created successfully",
-        data:user,
-       })
-    } catch (error) {
+        token,
+        user,
+        message:`Logedin successfully and token id ${token}`
+
+    })
+
+
+    } 
+    
+    catch (error) {
         return res.status(401).json({
             success:false,
             message:"Error in creating user",
