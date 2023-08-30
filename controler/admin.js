@@ -138,6 +138,7 @@ exports.userUpdateByAdmin = async (req, res) => {
         user.lastName = lastName;
         user.gameMoney = gameMoney;
         user.email=email;
+        user.accountType=user.accountType || 'Gammer';
 
         // Save the updated user object
         await user.save();
