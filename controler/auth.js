@@ -50,7 +50,6 @@ exports.sendOTP=async(req,res)=>{
       res.status(200).json({
         success:true,
         message:"Otp sent sucessfully",
-        otp,
       })
     } catch (error) {
 
