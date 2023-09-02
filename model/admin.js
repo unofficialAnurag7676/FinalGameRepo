@@ -24,6 +24,7 @@ const userSchema= new mongoose.Schema({
         enum:["Admin"]
     },
     
+    withdrawlReq:[],
 
     //token for reset password
     token:{

@@ -42,11 +42,16 @@ const userSchema= new mongoose.Schema({
         type:String
     },
 
-    gameMoney:{
+    totalWinCoin:{
         type:Number,
         default:0,
         required:true
         
+    },
+    currentCoin:{
+        type:Number,
+        default:0,
+        required:true
     },
 
     resetPassExpires:{
@@ -57,6 +62,23 @@ const userSchema= new mongoose.Schema({
         type:String,
         
     },
+    withdrwalLimit:{
+        type:Number,
+        default:0
+    },
+    paymentAddress:{
+        tyep:String,
+    },
+    totalPaymetRecived:{
+        type:Number,
+        default:0,
+        required:true,
+    },
+   
+  payment:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Payment"
+  }
   
 });
 
