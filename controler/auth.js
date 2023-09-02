@@ -50,6 +50,7 @@ exports.sendOTP=async(req,res)=>{
       res.status(200).json({
         success:true,
         message:"Otp sent sucessfully",
+
       })
     } catch (error) {
 
@@ -85,8 +86,7 @@ exports.verifyOtp=async(req,res)=>{
         return res.status(401).json({
             success:false,
             message:"Invalid otp",
-            data:otp,
-            op:recentOTP
+            
         });
     } 
 
