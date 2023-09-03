@@ -18,4 +18,5 @@ router.get("/getuser/:id",auth,getSingleUserdata);
 
 
 
+
 module.exports=router;

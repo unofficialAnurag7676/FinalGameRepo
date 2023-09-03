@@ -1,5 +1,5 @@
 const User=require("../model/admin");
-
+const Payment=require('../model/payment')
 const Gamer=require("../model/user");
 const Profile=require("../model/profile");
 
@@ -179,3 +179,73 @@ exports.userDeletionByAdmin=async(req,res)=>{
         })
     }
 }
+
+//get all paymnet request 
+exports.getAllPaymentReq=async(req,res)=>{
+
+    try {
+        const allReq=await Payment.find({});
+
+        return res.status(200).json({
+            succes:true,
+            data:allReq,
+        })
+
+    } catch (error) {
+        return res.stats(500).json(
+            {
+                succes:false,
+                message:"Internal server error",
+                fault:error.message
+            }
+        )
+    }
+}
+
+//updated payment
+exports.updateWithdrawlReq=async(req,res)=>{
+
+    try {
+        
+        const{paymentID,status}=req.body;
+
+        if (!paymentID || !status) {
+            
+            return res.status(404).json({
+                succes:false,
+                message:"all field are required"
+            })
+        }
+      
+      
+     //   const user=await User.findById({_id:payment.userID});
+
+        if(status==="Completed")
+        {
+          //deduct coin from user
+          //mark payment status completed
+          const payment=await Payment.findByIdAndUpdate({_id:paymentID},{paymentStatus:status});
+
+          return res.status(200).json({
+            succes:true,
+          })
+        }
+
+        else{
+            const payment=await Payment.findByIdAndUpdate({_id:paymentID},{paymentStatus:status});
+
+            return res.status(200).json({
+                succes:true,
+                message:"req rejected"
+              })
+        }
+
+    } catch (error) {
+        
+        return res.status(500).json({
+            success:false,
+            message:"internal server error"
+        })
+    }
+}
+

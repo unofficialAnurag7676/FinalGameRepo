@@ -10,7 +10,6 @@ const mailsender=require("../mail/mailSender");
 const emailOtp = require("../model/emailOtp");
 const Admin=require("../model/admin");
 
-
 require("dotenv").config();
 
 // send OTP via email for admin verification

@@ -4,7 +4,12 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 
-const {Adminlogin,userUpdateByAdmin,userDeletionByAdmin}=require("../controler/admin");
+const {Adminlogin,
+    userUpdateByAdmin,
+    userDeletionByAdmin,
+    getAllPaymentReq,
+    updateWithdrawlReq
+}=require("../controler/admin");
 const {auth,isAdmin}=require("../middlewire/authentication")
 const {verifyOtp}=require("../controler/auth");
 const {getSingleUserdata}=require("../controler/users");
@@ -24,5 +29,14 @@ router.put("/update/:id",auth,isAdmin,userUpdateByAdmin);
 
 //user deletion by user
 router.delete("/delete/:id",auth,isAdmin,userDeletionByAdmin);
+
+
+//get all payment request
+router.get('/withdrawl/list',auth,isAdmin,getAllPaymentReq);
+
+
+//upadte paymnet withdrawl request
+router.put('/withdrawl/update',auth,isAdmin,updateWithdrawlReq);
+
 
 module.exports=router;

@@ -69,16 +69,20 @@ const userSchema= new mongoose.Schema({
     paymentAddress:{
         tyep:String,
     },
+
     totalPaymetRecived:{
         type:Number,
         default:0,
         required:true,
     },
    
-  payment:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Payment"
-  }
+    paymentHistory:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Payment"
+        }
+    ],
+
   
 });
 

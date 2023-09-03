@@ -14,6 +14,7 @@ const session = require("express-session");
 const UserRoute=require("./routes/userRoutes")
 const googleAuthRoutes=require("./routes/googleAuth");
 const adminRoutes=require("./routes/Admin");
+const paymentsRoutes=require("./routes/payment")
 
 
 app.use(
@@ -59,6 +60,7 @@ app.use("/", googleAuthRoutes);
 //mounts routs
 app.use("/api/v1/auth",UserRoute);
 app.use('/api/v1/admin',adminRoutes);
+app.use('/api/v1/payment',paymentsRoutes);
 
 //call-back route
 app.get("/dashboard", (req, res) => {
