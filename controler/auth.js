@@ -67,8 +67,7 @@ exports.verifyOtp=async(req,res)=>{
     try {
 
         const{otp,email}=req.body;
-        
-        console.log(otp,email);
+
         const recentOTP=await emailOtp.findOne({email:email}).sort({createdAt:-1}).limit(1);
 
 
@@ -137,10 +136,11 @@ exports.signup=async(req,res)=>{
             email,
             accountType,
             contactNumber,
+            otp
              }=req.body;
 
         // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
-        if(!firstName || !lastName || !email || !contactNumber || !accountType)
+        if(!firstName || !lastName || !email || !contactNumber || !accountType || !otp)
         {
             return res.status(403).json({
                 success:false,
@@ -148,7 +148,6 @@ exports.signup=async(req,res)=>{
             })
         }   
         
-       
 
          // check user already present
          if(await User.findOne({email}))
@@ -157,6 +156,16 @@ exports.signup=async(req,res)=>{
                  success:false,
                  message:"user already exsist"
              })
+         }
+
+         //check otp are valid or not
+         const recentOTP=await OTP.findOne({phone:contactNumber}).sort({createdAt:-1}).limit(1);
+
+         if(!recentOTP || otp!==recentOTP.otp)
+         {
+            return res.status(404).json({
+                message:"Invalid otp"
+            })
          }
 
        //finaly create user in Data Base
@@ -284,57 +293,47 @@ exports.login=async(req,res)=>{
 }
 
 // mobile otp snding for gammer
-exports.mobileOtpSender=async(req,res)=>{
-
+exports.mobileOtpSender = async (req, res) => {
     try {
-        const { phoneNumber } = req.body;
-        const userExsist=await User.findOne({phoneNumber});
+      const { phoneNumber } = req.body;
+      const accountSid = "AC16e9ace54ce4cc107ae9f67b9f6dccae";
+      const authToken = "d88d982fd7ccb35a6d8ba57e0e7a1a98";
+      const verifySid = "VAd6839986cb2fd6d59f2b63a03cda6a50";
+      const client = require("twilio")(accountSid, authToken);
+      
+    //   const messagingServiceSid='MG8ef05b18834016b53836c1ed09b36f07'
 
-        if(userExsist){
-            return res.status(400).json({
-                success:false,
-                message:"User already present "
-            })
-        }
-       
-         // generate otp
       var otp=otpGenerator.generate(6,{
         upperCaseAlphabets:false,
         lowerCaseAlphabets:false,
         specialChars:false
       });
-
+       
+     const response= await client.messages.create(
+        {
+            from: '+12562861971',
+            body:`your otp is ${otp}`,
+            to:`+91${phoneNumber}`
+        }
+      );
       const otpPayload={phoneNumber ,otp};
-      const otpBody=await OTP.create(otpPayload);
-
-      const message=`Your otp is ${otp}`
-
-      const response = await axios.post('https://enterprise.smsgupshup.com/GatewayAPI/rest', {
-        method: 'SendMessage',
-        send_to: phoneNumber,
-        msg: message,
-        msg_type: 'TEXT',
-        userid: process.env.apiKey,
-        auth_scheme: 'plain',
-        password: process.env.apiKey,
-        v: '1.1',
-        format: 'text',
-        mask:process.env.senderId,
-      });
-  
-      console.log(response);
+      await OTP.create(otpPayload);
       return res.status(200).json({
-        success:true, 
-        message:"Otp send successfully"
-      })
+           success:true,
+           message:'otp send successfully',
+           response
+          })
      
     } catch (error) {
-        
-        console.log(error.message);
-        return res.status(400).json({
-            success:false,
-            mesage:"Faild to send otp",
-            fault:error.message
-        })
+      console.error(error.message);
+      return res.status(400).json({
+        success: false,
+        message: "Failed to send OTP",
+        fault: error.message,
+      });
     }
-}
+  };
+  
+
+
+
