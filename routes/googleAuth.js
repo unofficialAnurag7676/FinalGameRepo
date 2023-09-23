@@ -16,7 +16,7 @@ router.get(
             const token = await generateToken(req?.user?.userData?.email,
                 req?.user?.userData?._id, req?.user?.userData?.accountType);
 
-            console.log("token is", token);
+  
 
             // Send a message to the parent window (Unity WebGL) with the token
             const data = {
@@ -27,10 +27,11 @@ router.get(
             };
 
             // Use window.opener.postMessage to send the data
-            const script = `
-                window.opener.postMessage(${JSON.stringify(data)}, '*');
-                window.close();
-            `;
+           const script = `
+    window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+    window.close();
+`;
+
             res.send(script);
         } else {
             // User not found, send a message with profile data
@@ -41,10 +42,11 @@ router.get(
             };
 
             // Use window.opener.postMessage to send the data
-            const script = `
-                window.opener.postMessage(${JSON.stringify(data)}, '*');
-                window.close();
-            `;
+           const script = `
+    window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+    window.close();
+`;
+
             res.send(script);
         }
     }
