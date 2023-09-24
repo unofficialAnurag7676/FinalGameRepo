@@ -27,15 +27,17 @@ router.get(
             };
 
             // Use window.opener.postMessage to send the data
-   const script = `
-    window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
-    window.close();
+     const script = `
+    function sendDataToParent() {
+        window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+        window.close();
+    }
+
+    sendDataToParent();
 `;
 
 res.set('Content-Type', 'text/javascript');
 res.send(script);
-
-            res.send(script);
         } else {
             // User not found, send a message with profile data
             const data = {
@@ -46,14 +48,16 @@ res.send(script);
 
             // Use window.opener.postMessage to send the data
 const script = `
-    window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
-    window.close();
+    function sendDataToParent() {
+        window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+        window.close();
+    }
+
+    sendDataToParent();
 `;
 
 res.set('Content-Type', 'text/javascript');
 res.send(script);
-
-            res.send(script);
         }
     }
 );
