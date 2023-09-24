@@ -12,30 +12,52 @@ router.get(
     passport.authenticate("google", { failureRedirect: "/" }),
 
     async (req, res) => {
-
-        // Check if the authentication was successful (user found in the database)
-
-
         if (req.user.inDB === true) {
-            // User was found, you can send a success response
+            const token = await generateToken(req?.user?.userData?.email,
+                req?.user?.userData?._id, req?.user?.userData?.accountType);
 
-            const token =await generateToken(req?.user?.userData?.email,
-                req?.user?.userData?._id,req?.user?.userData?.accountType);
+  
 
-            console.log("token is",token);
-            return res.status(200).json({
+            // Send a message to the parent window (Unity WebGL) with the token
+            const data = {
                 success: true,
                 message: "User authenticated",
-                user:req.user.userData,
-                token:token
-            });
+                user: req.user.userData,
+                token: token
+            };
+
+            // Use window.opener.postMessage to send the data
+     const script = `
+    function sendDataToParent() {
+        window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+        window.close();
+    }
+
+    sendDataToParent();
+`;
+
+res.set('Content-Type', 'text/javascript');
+res.send(script);
         } else {
-            // User was not found, you can send a failure response with the profile data
-            return res.status(301).json({
+            // User not found, send a message with profile data
+            const data = {
                 success: false,
                 message: "User not found",
-                profile: req.user,
-            });
+                profile: req.user
+            };
+
+            // Use window.opener.postMessage to send the data
+const script = `
+    function sendDataToParent() {
+        window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
+        window.close();
+    }
+
+    sendDataToParent();
+`;
+
+res.set('Content-Type', 'text/javascript');
+res.send(script);
         }
     }
 );
