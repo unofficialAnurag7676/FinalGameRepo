@@ -93,34 +93,10 @@ exports.verifyOtp=async(req,res)=>{
         });
     } 
 
-    else{
-           // create JWT tokens
-           const payload={
-            email:user.email,
-            id:user._id,
-            role: user.accountType
-        }
-       
-        //payload , secretkey ,options
-        const token=jwt.sign(payload,process.env.JWT_SECRET,{
-            expiresIn: "1w"
-        });
-        user.token=token;
-        user.password=undefined;
-      
-        //create cookie
-        const options={
-                     maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
-                     httpOnly: true
-               }
-      return   res.cookie("token",  token, options).status(200).json({
-            success:true,
-            token,
-            user,
-            message:`Logedin successfully and token id ${token}`
-
-        })
-    }
+    return res.status(200).json({
+        success:true,
+        message:"Email verified"
+    })
   }
     catch (error) {
         console.log(error.message);
@@ -139,11 +115,11 @@ exports.signup=async(req,res)=>{
             FullName,
             email,
             contactNumber,
-            otp
+            password
              }=req.body;
 
         // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
-        if(!firstName || !lastName || !email || !contactNumber ||   !otp)
+        if(!FullName  || !email || !contactNumber ||   !password)
         {
             return res.status(403).json({
                 success:false,
@@ -161,25 +137,16 @@ exports.signup=async(req,res)=>{
              })
          }
 
-         //check otp are valid or not
-         const recentOTP=await OTP.findOne({phone:contactNumber}).sort({createdAt:-1}).limit(1);
-
-         if(!recentOTP || otp!==recentOTP.otp)
-         {
-            return res.status(404).json({
-                message:"Invalid otp"
-            })
-         }
+   
 
        //finaly create user in Data Base
        const user=await User.create({
-        firstName,
-        lastName,
+        FullName,
         email,
-        contactNumber,
+        phone:contactNumber,
         gameMoney:0,
-        accountType,
-        image:`https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+        password,
+        image:`https://api.dicebear.com/5.x/initials/svg?seed=${FullName} ${FullName}`,
        });
 
        //create token for token
@@ -300,32 +267,37 @@ exports.mobileOtpSender = async (req, res) =>
 {
     try {
       const { phoneNumber } = req.body;
-      const accountSid = "AC16e9ace54ce4cc107ae9f67b9f6dccae";
-      const authToken = "d88d982fd7ccb35a6d8ba57e0e7a1a98";
-      const verifySid = "VAd6839986cb2fd6d59f2b63a03cda6a50";
-      const client = require("twilio")(accountSid, authToken);
-      
-    //   const messagingServiceSid='MG8ef05b18834016b53836c1ed09b36f07'
 
+      const accountSid = 'AC73d4357bd025c361d5af9b1adc462de8';
+      const authToken = '583cc20ceb043ea121b1969019e5072f';
+      const client = require('twilio')(accountSid, authToken);
+      
       var otp=otpGenerator.generate(6,{
         upperCaseAlphabets:false,
         lowerCaseAlphabets:false,
         specialChars:false
       });
        
-     const response= await client.messages.create(
-        {
-            from: '+12562861971',
-            body:`your otp is ${otp}`,
-            to:`+91${phoneNumber}`
-        }
-      );
-      const otpPayload={phoneNumber ,otp};
-      await OTP.create(otpPayload);
+  
+      client.messages
+          .create({
+              body: `${otp}`,
+              from: '+18065153107',
+              to: '+917669007353'
+          })
+          .then(message => console.log(message.sid))
+          .catch(error => console.error('Error sending message:', error));
+      
+       
+      const Payload={phone:phoneNumber ,otp};
+      await OTP.create(Payload);
+     
+      console.log(Payload);
+
       return res.status(200).json({
            success:true,
            message:'otp send successfully',
-           response
+         
           })
      
     } catch (error) {
@@ -338,7 +310,46 @@ exports.mobileOtpSender = async (req, res) =>
       });
     }
 };
-  
+
+//mobile verify 
+exports.mobileOtpVerify=async(req,res)=>{
+   
+    try {
+
+        const{otp,phoneNumber}=req.body;
+
+        const recentOTP=await OTP.findOne({phone:phoneNumber}).sort({createdAt:-1}).limit(1);
+
+        if(recentOTP.length ===0)
+       {
+        return res.status(400).json({
+            success:false,
+            message:"OTP not found"
+        })
+       }
+
+       else if(otp !==recentOTP.otp){
+        return res.status(401).json({
+            success:false,
+            message:"Invalid otp",
+            
+        });
+    } 
+
+    return res.status(200).json({
+        success:true,
+        message:"Phone number verified"
+    })
+        
+    } catch (error) {
+        
+        console.log(error.message);
+        return res.status(400).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
 
 
 

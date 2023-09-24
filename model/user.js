@@ -2,16 +2,12 @@ const mongoose=require("mongoose");
 
 const userSchema= new mongoose.Schema({
 
-    firstName:{
+    FullName:{
         type:String,
         required:true,
         trim:true
     },
-    lastName:{
-        type:String,
-        required:true,
-        trim:true
-    },
+
     email:{
         type:String,
         required:true,
@@ -21,8 +17,8 @@ const userSchema= new mongoose.Schema({
     // Define the role field with type String and enum values of "Admin", "Gammer"
     accountType:{
         type:String,
-        required:true,
-        enum:["Gammer"]
+        default:"Gammer"
+
     },
 
     active: {
@@ -35,7 +31,10 @@ const userSchema= new mongoose.Schema({
         default: true,
         require:true,
     },
-
+   password:{
+    type:String,
+    required:true
+   },
 
     //token for reset password
     token:{
