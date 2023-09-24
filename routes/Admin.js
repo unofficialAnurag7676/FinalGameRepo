@@ -3,6 +3,7 @@
 const express = require("express");
 const passport = require("passport");
 const router = express.Router();
+const Admin=require('../model/admin');
 
 const {Adminlogin,
     userUpdateByAdmin,
@@ -11,9 +12,13 @@ const {Adminlogin,
     updateWithdrawlReq
 }=require("../controler/admin");
 const {auth,isAdmin}=require("../middlewire/authentication")
-const {verifyOtp}=require("../controler/auth");
+const {verifyOtp}=require("../controler/admin");
 const {getSingleUserdata}=require("../controler/users");
 const{getAlluser}=require("../controler/admin")
+const {sendOTP}=require('../controler/admin')
+
+//send email otp
+router.post('/send/otp',sendOTP);
 
 //admin login
 router.post("/login",Adminlogin);

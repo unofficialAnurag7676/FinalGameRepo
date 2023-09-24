@@ -2,7 +2,121 @@ const User=require("../model/admin");
 const Payment=require('../model/payment')
 const Gamer=require("../model/user");
 const Profile=require("../model/profile");
+const Admin=require('../model/admin')
 
+//send email otp 
+exports.sendOTP=async(req,res)=>{
+
+    try {
+        
+        const{email}=req.body;
+        const userExsist=await Admin.findOne({email});
+        
+        // generate otp
+      var otp=otpGenerator.generate(6,{
+        upperCaseAlphabets:false,
+        lowerCaseAlphabets:false,
+        specialChars:false
+      });
+
+      //check the unique otp or not
+      let result= await EmailOTP.findOne({otp:otp});
+
+      while(result)
+      {
+        otpGenerator.generate(6,{
+            upperCaseAlphabets:false,
+            lowerCaseAlphabets:false,
+            specialChars:false
+          });
+          result= await EmailOTP.findOne({otp:otp});
+      }
+
+      const otpPayload={email ,otp};
+      const otpBody=await EmailOTP.create(otpPayload);
+      
+      await mailsender(email,"OTP verification",otp);
+      
+      res.status(200).json({
+        success:true,
+        message:"Otp sent sucessfully",
+
+      })
+    } catch (error) {
+
+        res.status(500).json({
+            success:false,
+            message:error.message,
+
+        })
+    }
+};
+
+//verify
+exports.verifyOtp=async(req,res)=>{
+
+    try {
+
+        const{otp,email}=req.body;
+
+        const recentOTP=await emailOtp.findOne({email:email}).sort({createdAt:-1}).limit(1);
+
+
+        let user=await User.findOne({ email})
+        if(recentOTP.length ===0)
+       {
+        return res.status(400).json({
+            success:false,
+            message:"OTP not found"
+        })
+       }
+
+       else if(otp !==recentOTP.otp){
+        return res.status(401).json({
+            success:false,
+            message:"Invalid otp",
+            
+        });
+    } 
+
+    else{
+           // create JWT tokens
+           const payload={
+            email:user.email,
+            id:user._id,
+            role: user.accountType
+        }
+       
+        //payload , secretkey ,options
+        const token=jwt.sign(payload,process.env.JWT_SECRET,{
+            expiresIn: "1w"
+        });
+        user.token=token;
+        user.password=undefined;
+      
+        //create cookie
+        const options={
+                     maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
+                     httpOnly: true
+               }
+      return   res.cookie("token",  token, options).status(200).json({
+            success:true,
+            token,
+            user,
+            message:`Logedin successfully and token id ${token}`
+
+        })
+    }
+  }
+    catch (error) {
+        console.log(error.message);
+        return res.status(400).json({
+            success:false,
+            message:error
+        })
+    }
+}
+//log in
 exports.Adminlogin=async(req,res)=>{
  
     try {

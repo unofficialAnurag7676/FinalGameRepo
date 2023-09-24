@@ -5,7 +5,6 @@ const EmailOTP=require("../model/emailOtp")
 const otpGenerator=require("otp-generator")
 const jwt=require("jsonwebtoken");
 
-
 const mailsender=require("../mail/mailSender");
 const emailOtp = require("../model/emailOtp");
 const Admin=require("../model/admin");
@@ -19,7 +18,13 @@ exports.sendOTP=async(req,res)=>{
         
         const{email}=req.body;
         const userExsist=await User.findOne({email});
-
+       
+        if(userExsist)
+        {
+            return res.status(400).json({
+                message:"Email already exist"
+            })
+        }
 
         // generate otp
       var otp=otpGenerator.generate(6,{
@@ -131,16 +136,14 @@ exports.signup=async(req,res)=>{
 
     try {
         const{
-            firstName,
-            lastName,
+            FullName,
             email,
-            accountType,
             contactNumber,
             otp
              }=req.body;
 
         // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
-        if(!firstName || !lastName || !email || !contactNumber || !accountType || !otp)
+        if(!firstName || !lastName || !email || !contactNumber ||   !otp)
         {
             return res.status(403).json({
                 success:false,
@@ -293,7 +296,8 @@ exports.login=async(req,res)=>{
 }
 
 // mobile otp snding for gammer
-exports.mobileOtpSender = async (req, res) => {
+exports.mobileOtpSender = async (req, res) => 
+{
     try {
       const { phoneNumber } = req.body;
       const accountSid = "AC16e9ace54ce4cc107ae9f67b9f6dccae";
@@ -326,13 +330,14 @@ exports.mobileOtpSender = async (req, res) => {
      
     } catch (error) {
       console.error(error.message);
+      console.log("error in sending otp")
       return res.status(400).json({
         success: false,
         message: "Failed to send OTP",
         fault: error.message,
       });
     }
-  };
+};
   
 
 
