@@ -137,7 +137,7 @@ exports.signup=async(req,res)=>{
              })
          }
 
-   
+         const hashPassword =await bcrypt.hash(password,10); 
 
        //finaly create user in Data Base
        const user=await User.create({
@@ -145,7 +145,7 @@ exports.signup=async(req,res)=>{
         email,
         phone:contactNumber,
         gameMoney:0,
-        password,
+        password:hashPassword,
         image:`https://api.dicebear.com/5.x/initials/svg?seed=${FullName} ${FullName}`,
        });
 
@@ -167,7 +167,7 @@ exports.signup=async(req,res)=>{
         maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
         httpOnly: true
     }
-
+    user.password=undefined;
     return res.cookie("token",  token, options).status(200).json({
         success:true,
         token,
@@ -194,10 +194,10 @@ exports.login=async(req,res)=>{
     try {
         
         // fetch the data from req body
-        const{email,password}=req.body;
+        const{phoneNumber,password}=req.body;
 
         //valid data or not
-        if(!email || !password){
+        if(!phoneNumber || !password){
             return res.status(400).json({
                 success:false,
                 message:"All filed are require"
@@ -206,7 +206,7 @@ exports.login=async(req,res)=>{
 
         // check user exist or not
         //need to populate game-coin also **REMAINING
-        let user=await User.findOne({ email }).populate("additonalDetails");
+        let user=await User.findOne({ phone:phoneNumber });
         if(!user){
             return res.status(500).json({
                 success:false,
