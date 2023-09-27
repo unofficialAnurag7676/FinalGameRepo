@@ -1,3 +1,4 @@
+require("dotenv").config();
 const bcrypt=require("bcrypt");
 const User=require("../model/user")
 const OTP=require("../model/otp")
@@ -268,9 +269,9 @@ exports.mobileOtpSender = async (req, res) =>
     try {
       const { phoneNumber } = req.body;
 
-      const accountSid = 'AC73d4357bd025c361d5af9b1adc462de8';
-      const authToken = '583cc20ceb043ea121b1969019e5072f';
-      const client = require('twilio')(accountSid, authToken);
+    //   const accountSid = 'AC73d4357bd025c361d5af9b1adc462de8';
+    //   const authToken = '583cc20ceb043ea121b1969019e5072f';
+      const client = require('twilio')(process.envaccountSid., process.env.authToken);
       
       var otp=otpGenerator.generate(6,{
         upperCaseAlphabets:false,
