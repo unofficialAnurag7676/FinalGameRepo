@@ -267,7 +267,7 @@ exports.login=async(req,res)=>{
 exports.mobileOtpSender = async (req, res) => 
 {
     try {
-      const { phoneNumber } = req.body;
+      const { phoneNumber ,countryCode} = req.body;
 
     //   const accountSid = 'AC73d4357bd025c361d5af9b1adc462de8';
     //   const authToken = '583cc20ceb043ea121b1969019e5072f';
@@ -282,9 +282,9 @@ exports.mobileOtpSender = async (req, res) =>
   
       client.messages
           .create({
-              body: `${otp}`,
-              from: '+18065153107',
-              to: '+917669007353'
+              body: `Your otp for suits card game is ${otp}`,
+              from: '+18447391301',
+              to: `+${countryCode}${phoneNumber}`
           })
           .then(message => console.log(message.sid))
           .catch(error => console.error('Error sending message:', error));
@@ -292,9 +292,7 @@ exports.mobileOtpSender = async (req, res) =>
        
       const Payload={phone:phoneNumber ,otp};
       await OTP.create(Payload);
-     
-      console.log(Payload);
-
+ 
       return res.status(200).json({
            success:true,
            message:'otp send successfully',

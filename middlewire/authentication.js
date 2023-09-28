@@ -5,7 +5,7 @@ const jwt=require("jsonwebtoken");
 //auth
 exports.auth = async (req, res, next) => {
     try {
-        let token = req.cookies.token || req.body.token || '';
+        // let token = req.cookies.token || req.body.token || '';
 
         // If the token is provided in the Authorization header, override the other sources
         if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
