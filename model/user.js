@@ -1,88 +1,75 @@
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 
-const userSchema= new mongoose.Schema({
+const userSchema = new mongoose.Schema({
+  FullName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  // Define the role field with type String and enum values of "Admin", "Gammer"
+  accountType: {
+    type: String,
+    default: "Gammer",
+  },
 
-    FullName:{
-        type:String,
-        required:true,
-        trim:true
-    },
+  active: {
+    type: Boolean,
+    default: true,
+  },
 
-    email:{
-        type:String,
-        required:true,
-        trim:true
-    },
-  
-    // Define the role field with type String and enum values of "Admin", "Gammer"
-    accountType:{
-        type:String,
-        default:"Gammer"
+  phone: {
+    type: Number,
+    default: true,
+    require: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
 
-    },
+  //token for reset password
+  token: {
+    type: String,
+  },
 
-    active: {
-        type: Boolean,
-        default: true,
-    },
- 
-    phone:{
-        type:Number,
-        default: true,
-        require:true,
-    },
-   password:{
-    type:String,
-    required:true
-   },
+  totalWinCoin: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
+  currentCoin: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
 
-    //token for reset password
-    token:{
-        type:String
-    },
+  resetPassExpires: {
+    type: Date,
+  },
 
-    totalWinCoin:{
-        type:Number,
-        default:0,
-        required:true
-        
-    },
-    currentCoin:{
-        type:Number,
-        default:0,
-        required:true
-    },
+  image: {
+    type: String,
+  },
+  withdrwalLimit: {
+    type: Number,
+    default: 0,
+  },
+  paymentAddress: {
+    tyep: String,
+  },
 
-    resetPassExpires:{
-        type:Date
-    },
+  totalPaymetRecived: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
 
-    image:{
-        type:String,
-        
+  paymentHistory: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
     },
-    withdrwalLimit:{
-        type:Number,
-        default:0
-    },
-    paymentAddress:{
-        tyep:String,
-    },
-
-    totalPaymetRecived:{
-        type:Number,
-        default:0,
-        required:true,
-    },
-   
-    paymentHistory:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Payment"
-        }
-    ],
-
-  
+  ],
 });
 
-module.exports=mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);
