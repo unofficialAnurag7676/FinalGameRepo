@@ -42,11 +42,14 @@ const userSchema = new mongoose.Schema({
     default: 0,
     required: true,
   },
-
+  totalCash: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
   resetPassExpires: {
     type: Date,
   },
-
   image: {
     type: String,
   },
@@ -57,13 +60,11 @@ const userSchema = new mongoose.Schema({
   paymentAddress: {
     tyep: String,
   },
-
   totalPaymetRecived: {
     type: Number,
     default: 0,
     required: true,
   },
-
   paymentHistory: [
     {
       type: mongoose.Schema.Types.ObjectId,

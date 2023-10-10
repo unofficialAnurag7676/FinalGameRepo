@@ -32,7 +32,6 @@ router.get(
         window.opener.postMessage(${JSON.stringify(data).replace(/</g, '\\u003c')}, '*');
         window.close();
     }
-
     sendDataToParent();
 `;
 

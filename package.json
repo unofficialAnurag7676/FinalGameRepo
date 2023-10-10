@@ -29,6 +29,7 @@
     "passport-google-oauth20": "^2.0.0",
     "playfab-sdk": "^2.131.230718",
     "request": "^2.88.2",
+    "stripe": "^13.8.0",
     "twilio": "^4.17.0"
   }
 }

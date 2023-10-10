@@ -99,7 +99,16 @@ exports.verifyOtp = async (req, res) => {
 // sign in api for Gammer
 exports.signup = async (req, res) => {
   try {
-    const { FullName, contactNumber, password } = req.body;
+    const { FullName, contactNumber, password, otp } = req.body;
+    const recentOTP = await OTP.findOne({ phone: contactNumber })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (recentOTP.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "otp invalid",
+      });
+    }
     // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
     if (!FullName || !contactNumber || !password) {
       return res.status(403).json({
@@ -305,9 +314,17 @@ exports.mobileOtpVerify = async (req, res) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-  const { newPassword, confirmPassword, phoneNumber } = req.body;
-
+  const { newPassword, confirmPassword, phoneNumber, otp } = req.body;
   try {
+    const recentOTP = await OTP.findOne({ phone: phoneNumber })
+      .sort({ createdAt: -1 })
+      .limit(1);
+    if (recentOTP.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "otp invalid",
+      });
+    }
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -322,7 +339,6 @@ exports.forgotPassword = async (req, res) => {
     }
 
     const user = await User.findOne({ phone: phoneNumber });
-    console.log(user);
     if (!user) {
       return res.status(400).json({
         success: false,
