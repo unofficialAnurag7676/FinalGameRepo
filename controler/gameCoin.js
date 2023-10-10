@@ -1,6 +1,10 @@
 const User = require("../model/user");
 // const GameCurency = require("../model/gameMoney");
 // const GameCurrency = require("../models/GameCurrency"); // Import the GameCurrency model
+const TEN = "TEN";
+const HUNDRED = "HUNDRED";
+const CASH = "CASH";
+const COIN = "COIN";
 
 exports.decreaseCoin = async (req, res) => {
   try {
