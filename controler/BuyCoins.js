@@ -62,7 +62,6 @@ exports.paymetnSuccess = async (request, response) => {
     case "checkout.session.completed":
       const checkOutDone = event.data.object;
       //find the sessionID
-      console.log(checkOutDone);
       const session = await BuyCoin.findOne({ sessionID: checkOutDone.id });
 
       if (session) {
