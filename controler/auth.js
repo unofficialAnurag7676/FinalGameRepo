@@ -324,6 +324,8 @@ exports.forgotPassword = async (req, res) => {
         message: "otp invalid",
       });
     }
+    await recentOTP.remove();
+
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -346,7 +348,7 @@ exports.forgotPassword = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(user._id, { password: hashedPassword });
-    return res.status(400).json({
+    return res.status(200).json({
       success: true,
       message: "Password Updated succsfully",
     });
