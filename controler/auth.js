@@ -324,7 +324,7 @@ exports.forgotPassword = async (req, res) => {
         message: "otp invalid",
       });
     }
-    await recentOTP.remove();
+    await OTP.findByIdAndDelete({ _id: recentOTP._id });
 
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
