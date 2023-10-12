@@ -174,7 +174,6 @@ exports.login = async (req, res) => {
   try {
     // fetch the data from req body
     const { phoneNumber, password } = req.body;
-
     //valid data or not
     if (!phoneNumber || !password) {
       return res.status(400).json({
