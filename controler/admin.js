@@ -54,9 +54,10 @@ exports.sendOTP = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   try {
     const { otp, email } = req.body;
-    const recentOTP = await EmailOTP.findOne({ email: email })
-      .sort({ createdAt: -1 })
-      .limit(1);
+    const recentOTP =
+      (await EmailOTP.findOne({ email: email })
+        .sort({ createdAt: -1 })
+        .limit(1)) || [];
 
     let user = await User.findOne({ email });
     if (recentOTP.length === 0) {
