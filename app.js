@@ -40,8 +40,8 @@ app.use(cookieParser());
 //instantiate froentend request
 app.use(
   cors({
-    origin: "*",
-    // credentials: true,
+    origin: ["http://localhost:3002", "*"],
+    credentials: true,
   })
 );
 
