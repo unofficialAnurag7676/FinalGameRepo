@@ -20,6 +20,7 @@ const webhook = require("./routes/webhook");
 app.use(
   cors({
     origin: "*",
+    credentials: true,
   })
 );
 
