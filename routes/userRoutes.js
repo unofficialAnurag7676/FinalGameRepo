@@ -16,7 +16,7 @@ const {
 const { getSingleUserdata } = require("../controler/users");
 const { buyCoins, paymetnSuccess } = require("../controler/BuyCoins");
 const { decreaseCoin, increaseCoin } = require("../controler/gameCoin");
-const { withdrawalReq} = require("../controler/users")
+const { withdrawalReq } = require("../controler/users");
 
 // ********************************************************************************************************
 //                                     Authentication routes
@@ -32,6 +32,6 @@ router.post("/buy-coins", auth, buyCoins);
 router.post("/forgot-password", forgotPassword);
 router.post("/coin/decrease", auth, decreaseCoin);
 router.post("/coin/increase", auth, increaseCoin);
-router.post("/withdrawl", auth, withdrawalReq);
+router.post("/withdrawl", withdrawalReq);
 
 module.exports = router;
