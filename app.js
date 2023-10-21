@@ -20,8 +20,8 @@ const webhook = require("./routes/webhook");
 app.use(
   cors({
     origin: [
-      "https://fancy-cannoli-c32714.netlify.app",
       "https://chimerical-heliotrope-a7ceb5.netlify.app",
+      "https://fancy-cannoli-c32714.netlify.app",
     ],
   })
 );
