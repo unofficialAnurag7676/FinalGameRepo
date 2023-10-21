@@ -48,6 +48,26 @@ exports.withdrawalReq = async (req, res) => {
         message: "All fields are required",
       });
     }
+
+    // Fetch the user's totalCash
+    const user = await User.findById(userID);
+    const userTotalCash = user.totalCash;
+
+    if (withdrawlAmount < 4000) {
+      return res.status(400).json({
+        success: false,
+        message: " minimum 4000Rs required.",
+      });
+    }
+    if (userTotalCash <= withdrawlAmount) {
+      // Check if the user has more than 4000 totalCash
+      return res.status(400).json({
+        success: false,
+        message:
+          "Insufficient totalCash for withdrawal (minimum 4000 required).",
+      });
+    }
+
     // Create a new payment request document
     const paymentRequest = new Payment({
       paymentStatus: "Processing",
@@ -61,19 +81,14 @@ exports.withdrawalReq = async (req, res) => {
     await paymentRequest.save();
 
     // Update the user's paymentHistory array with the generated payment request's _id
-    const user = await User.findByIdAndUpdate(
-      userID,
-      {
-        $push: { paymentHistory: paymentRequest._id },
-      },
-      { new: true }
-    );
+    await User.findByIdAndUpdate(userID, {
+      $push: { paymentHistory: paymentRequest._id },
+    });
 
     return res.status(200).json({
       success: true,
       message: "Payment request created successfully",
       paymentRequest: paymentRequest, // You can send the payment request data in the response if needed
-      user: user, // You can send the updated user data in the response if needed
     });
   } catch (error) {
     console.error(error);

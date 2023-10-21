@@ -280,7 +280,7 @@ exports.userDeletionByAdmin = async (req, res) => {
 exports.getAllPaymentReq = async (req, res) => {
   try {
     const allReq = await Payment.find({});
-    
+
     return res.status(200).json({
       succes: true,
       data: allReq,
@@ -300,40 +300,42 @@ exports.updateWithdrawlReq = async (req, res) => {
     const { paymentID, status } = req.body;
 
     if (!paymentID || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment ID and status are required.",
+      });
+    }
+
+    // Find the payment based on paymentID
+    const payment = await Payment.findById(paymentID);
+
+    if (!payment) {
       return res.status(404).json({
-        succes: false,
-        message: "all field are required",
+        success: false,
+        message: "Payment not found.",
       });
     }
 
-    //   const user=await User.findById({_id:payment.userID});
-
+    // Deduct an amount from the user's totalCash
+    const user = await User.findById(payment.userID);
     if (status === "Completed") {
-      //deduct coin from user
-      //mark payment status completed
-      const payment = await Payment.findByIdAndUpdate(
-        { _id: paymentID },
-        { paymentStatus: status }
-      );
-
-      return res.status(200).json({
-        succes: true,
-      });
-    } else {
-      const payment = await Payment.findByIdAndUpdate(
-        { _id: paymentID },
-        { paymentStatus: status }
-      );
-
-      return res.status(200).json({
-        succes: true,
-        message: "req rejected",
-      });
+      user.totalCash -= payment.ammount;
     }
+
+    // Update the payment status
+    payment.paymentStatus = status;
+    await payment.save();
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        status === "Completed" ? "Payment Completed" : "Payment Rejected",
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "internal server error",
+      message: "Internal server error",
     });
   }
 };
