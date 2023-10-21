@@ -1,4 +1,3 @@
-const User = require("../model/admin");
 const Payment = require("../model/payment");
 const Gamer = require("../model/user");
 const Profile = require("../model/profile");
@@ -7,7 +6,7 @@ const otpGenerator = require("otp-generator");
 const EmailOTP = require("../model/emailOtp");
 const mailsender = require("../mail/mailSender");
 const jwt = require("jsonwebtoken");
-
+const User = require("../model/user");
 //send email otp
 exports.sendOTP = async (req, res) => {
   try {
@@ -317,16 +316,16 @@ exports.updateWithdrawlReq = async (req, res) => {
     }
 
     // Deduct an amount from the user's totalCash
-    const user = await User.findById(payment.userID);
+    const userID = payment?.userID.toString();
+    const user = await User.findById(userID);
+
     if (status === "Completed") {
       user.totalCash -= payment.ammount;
     }
-
     // Update the payment status
     payment.paymentStatus = status;
     await payment.save();
     await user.save();
-
     return res.status(200).json({
       success: true,
       message:
