@@ -280,7 +280,7 @@ exports.userDeletionByAdmin = async (req, res) => {
 exports.getAllPaymentReq = async (req, res) => {
   try {
     const allReq = await Payment.find({});
-
+    
     return res.status(200).json({
       succes: true,
       data: allReq,

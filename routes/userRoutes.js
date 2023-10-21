@@ -32,6 +32,6 @@ router.post("/buy-coins", auth, buyCoins);
 router.post("/forgot-password", forgotPassword);
 router.post("/coin/decrease", auth, decreaseCoin);
 router.post("/coin/increase", auth, increaseCoin);
-router.post("/withdrawl", withdrawalReq);
+router.post("/withdrawl", auth, withdrawalReq);
 
 module.exports = router;
