@@ -62,7 +62,7 @@ app.use("/", googleAuthRoutes);
 //mounts routs
 app.use("/api/v1/auth", UserRoute);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/payment", paymentsRoutes);
+// app.use("/api/v1/payment", paymentsRoutes);
 
 //call-back route
 //adding callback router

@@ -6,6 +6,6 @@ const {withdrawalReq}=require('../controler/users');
 
 //for withdrawl request
 
-router.post('/withdrawl',auth,isGammer,withdrawalReq);
+router.post('/withdrawl',auth,withdrawalReq);
 
 module.exports=router;
