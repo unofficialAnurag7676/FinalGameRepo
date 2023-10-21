@@ -41,8 +41,8 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      "https://fancy-cannoli-c32714.netlify.app",
-      "https://chimerical-heliotrope-a7ceb5.netlify.app",
+      "https://fancy-cannoli-c32714.netlify.app/",
+      "https://www.chimerical-heliotrope-a7ceb5.netlify.app",
     ],
     credentials: true,
   })
