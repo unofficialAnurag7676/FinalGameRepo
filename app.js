@@ -18,6 +18,15 @@ const paymentsRoutes = require("./routes/payment");
 const webhook = require("./routes/webhook");
 
 app.use(
+  cors({
+    origin: [
+      "https://fancy-cannoli-c32714.netlify.app",
+      "https://chimerical-heliotrope-a7ceb5.netlify.app",
+    ],
+  })
+);
+
+app.use(
   session({
     secret: "suman203", // Change this to a strong and secure key
     resave: false,
@@ -38,15 +47,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 //instantiate froentend request
-app.use(
-  cors({
-    origin: [
-      "https://fancy-cannoli-c32714.netlify.app",
-      "https://chimerical-heliotrope-a7ceb5.netlify.app",
-    ],
-    credentials: true,
-  })
-);
 
 //file upload middleware
 app.use(
