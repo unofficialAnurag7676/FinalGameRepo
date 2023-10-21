@@ -40,7 +40,7 @@ app.use(cookieParser());
 //instantiate froentend request
 app.use(
   cors({
-    origin: "*",
+    origin: "https://chimerical-heliotrope-a7ceb5.netlify.app/",
     credentials: true,
   })
 );
@@ -62,6 +62,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/payment", paymentsRoutes);
 
 //call-back route
+//adding callback router
 app.get("/dashboard", (req, res) => {
   res.send("<h1>Dashboard</h1>");
 });
