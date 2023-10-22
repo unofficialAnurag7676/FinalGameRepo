@@ -59,6 +59,7 @@ exports.verifyOtp = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(1)) || [];
 
+    console.log(recentOTP);
     let user = await Admin.findOne({ email: email });
     if (!user) {
       return res.status(400).json({
