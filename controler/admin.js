@@ -53,13 +53,26 @@ exports.sendOTP = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
   try {
     const { otp, email } = req.body;
+
     const recentOTP =
       (await EmailOTP.findOne({ email: email })
         .sort({ createdAt: -1 })
         .limit(1)) || [];
 
-    let user = await User.findOne({ email });
-    if (otp !== recentOTP.otp) {
+    let user = await Admin.findOne({ email: email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not valid",
+      });
+    }
+
+    if (recentOTP.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not found",
+      });
+    } else if (otp !== recentOTP.otp) {
       return res.status(401).json({
         success: false,
         message: "Invalid otp",
