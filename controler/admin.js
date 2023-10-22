@@ -59,12 +59,7 @@ exports.verifyOtp = async (req, res) => {
         .limit(1)) || [];
 
     let user = await User.findOne({ email });
-    if (recentOTP.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP not found",
-      });
-    } else if (otp !== recentOTP.otp) {
+    if (otp !== recentOTP.otp) {
       return res.status(401).json({
         success: false,
         message: "Invalid otp",
