@@ -133,6 +133,7 @@ exports.signup = async (req, res) => {
       phone: contactNumber,
       gameMoney: 0,
       password: hashPassword,
+      currentCoin: 100,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${FullName} ${FullName}`,
     });
 
@@ -286,8 +287,8 @@ exports.mobileOtpVerify = async (req, res) => {
     const recentOTP = await OTP.findOne({ phone: phoneNumber })
       .sort({ createdAt: -1 })
       .limit(1);
-
-    if (recentOTP.length === 0) {
+    
+    if (recentOTP && recentOTP.length === 0) {
       return res.status(400).json({
         success: false,
         message: "OTP not found",
@@ -358,5 +359,3 @@ exports.forgotPassword = async (req, res) => {
     message: "something went wrong",
   });
 };
-
-

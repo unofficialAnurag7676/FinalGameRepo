@@ -24,8 +24,8 @@ exports.buyCoins = async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: "https://fancy-cannoli-c32714.netlify.app/",
-      cancel_url: "https://fancy-cannoli-c32714.netlify.app/",
+      success_url: "http://suitscardgame.com/",
+      cancel_url: "http://suitscardgame.com/",
     });
 
     //save a entry in db user-id and session-id for after confirm payment increase the game coin

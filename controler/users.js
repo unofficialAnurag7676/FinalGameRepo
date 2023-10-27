@@ -53,10 +53,10 @@ exports.withdrawalReq = async (req, res) => {
     const user = await User.findById(userID);
     const userTotalCash = user.totalCash;
 
-    if (withdrawlAmount < 4000) {
+    if (withdrawlAmount < 1000) {
       return res.status(400).json({
         success: false,
-        message: " minimum 4000Rs required.",
+        message: " minimum 1000Rs required.",
       });
     }
     if (userTotalCash <= withdrawlAmount) {
