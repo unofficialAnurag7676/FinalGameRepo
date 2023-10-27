@@ -287,13 +287,13 @@ exports.mobileOtpVerify = async (req, res) => {
     const recentOTP = await OTP.findOne({ phone: phoneNumber })
       .sort({ createdAt: -1 })
       .limit(1);
-    
-    if (recentOTP && recentOTP.length === 0) {
+
+    if (recentOTP.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "OTP not found",
+        message: "OTP expired",
       });
-    } else if (otp !== recentOTP.otp) {
+    } else if (otp != recentOTP.otp) {
       return res.status(401).json({
         success: false,
         message: "Invalid otp",
