@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema({
   token: {
     type: String,
   },
-
   totalWinCoin: {
     type: Number,
     default: 0,
@@ -64,6 +63,14 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     required: true,
+  },
+  lastTournamentFee: {
+    type: Number,
+    default: 0,
+  },
+  tournamentStreak: {
+    type: Number,
+    default: 0,
   },
   paymentHistory: [
     {

@@ -38,26 +38,26 @@ exports.decreaseCoin = async (req, res) => {
     }
     if (user.currentCoin >= Amount) {
       user.currentCoin -= Amount;
-      // Save the updated user object back to the database
-      await user.save();
-      return res.status(200).json({
-        success: true,
-        message: "Coins updated successfully",
-      });
     } else if (user.totalCash >= Amount) {
       user.totalCash -= Amount;
-      // Save the updated user object back to the database
-      await user.save();
-      return res.status(200).json({
-        success: true,
-        message: "Coins updated successfully",
-      });
     } else {
       return res.status(400).json({
         success: false,
         message: "not enough coins available",
       });
     }
+
+    // Update lastTournamentFee and tournamentStreak
+    user.lastTournamentFee = count;
+    user.tournamentStreak = 0;
+
+    // Save the updated user object back to the database
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Coins updated successfully",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -99,26 +99,30 @@ exports.increaseCoin = async (req, res) => {
     }
     if (type === CASH) {
       user.totalCash += Amount;
-      // Save the updated user object back to the database
-      await user.save();
-      return res.status(200).json({
-        success: true,
-        message: "Coins updated successfully",
-      });
     } else if (type === COIN) {
       user.currentCoin += Amount;
-      // Save the updated user object back to the database
-      await user.save();
-      return res.status(200).json({
-        success: true,
-        message: "Coins updated successfully",
-      });
     } else {
       return res.status(400).json({
         success: false,
         message: "something went wrong",
       });
     }
+
+    // Set lastTournamentFee to the count
+    user.lastTournamentFee = count;
+
+    // Increment tournamentStreak by one (with a maximum of 3)
+    if (user.tournamentStreak < 3) {
+      user.tournamentStreak += 1;
+    }
+
+    // Save the updated user object back to the database
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Coins updated successfully",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
