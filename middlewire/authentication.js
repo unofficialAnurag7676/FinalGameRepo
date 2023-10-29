@@ -1,11 +1,13 @@
 const User = require("../model/user");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const Session = require("../model/session"); // Assuming you have a session schema
 
 //auth
+
 exports.auth = async (req, res, next) => {
   try {
-    // let token = req.cookies.token || req.body.token || '';
+    let token = req.cookies.token || req.body.token || "";
 
     // If the token is provided in the Authorization header, override the other sources
     if (
@@ -25,14 +27,17 @@ exports.auth = async (req, res, next) => {
     try {
       const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Check for token expiration here if needed
-      // const now = Date.now().valueOf() / 1000;
-      // if (decode.exp < now) {
-      //     return res.status(403).json({
-      //         success: false,
-      //         message: "Token has expired",
-      //     });
-      // }
+      // Check the session's validity in the database
+      const session = await Session.findOne({
+        session_id: decode.session_id,
+        phone_number: decode.phone,
+      });
+      if (!session) {
+        return res.status(403).json({
+          success: false,
+          message: "Session is invalid",
+        });
+      }
 
       req.user = decode;
       next();
@@ -57,15 +62,14 @@ exports.isGammer = async (req, res, next) => {
     if (req.user.role !== "Gammer") {
       return res.status(500).json({
         success: false,
-        message: "You are not a astudent bro",
+        message: "Not a valid account",
       });
     }
     next();
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "error in student route",
-      data: console.log(error),
+      message: "Error in account validation",
     });
   }
 };
@@ -84,7 +88,6 @@ exports.isAdmin = async (req, res, next) => {
     return res.status(500).json({
       success: false,
       message: "error in admin route",
-      data: console.log(error),
     });
   }
 };

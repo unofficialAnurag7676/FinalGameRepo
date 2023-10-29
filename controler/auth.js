@@ -5,10 +5,11 @@ const OTP = require("../model/otp");
 const EmailOTP = require("../model/emailOtp");
 const otpGenerator = require("otp-generator");
 const jwt = require("jsonwebtoken");
-
 const mailsender = require("../mail/mailSender");
 const emailOtp = require("../model/emailOtp");
 const Admin = require("../model/admin");
+const Session = require("../model/session");
+const generateUniqueSessionId = require("../utils/generateSession");
 
 require("dotenv").config();
 
@@ -96,38 +97,42 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 
-// sign in api for Gammer
 exports.signup = async (req, res) => {
   try {
     const { FullName, contactNumber, password, otp } = req.body;
+
+    // Verify OTP
     const recentOTP = await OTP.findOne({ phone: contactNumber })
       .sort({ createdAt: -1 })
       .limit(1);
-    if (recentOTP.otp !== otp) {
+
+    if (!recentOTP || recentOTP.otp !== otp) {
       return res.status(400).json({
         success: false,
-        message: "otp invalid",
+        message: "Invalid OTP",
       });
     }
-    // verify otp , cause user only done sign up when email verififcation done before create a new entry in DB
+
+    // Check if required fields are provided
     if (!FullName || !contactNumber || !password) {
       return res.status(403).json({
         success: false,
-        message: "all field are require",
+        message: "All fields are required",
       });
     }
 
-    // check user already present
-    if (await User.findOne({ phone: contactNumber })) {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ phone: contactNumber });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "user already exsist",
+        message: "User already exists",
       });
     }
 
+    // Create the user in the database
     const hashPassword = await bcrypt.hash(password, 10);
 
-    //finaly create user in Data Base
     const user = await User.create({
       FullName,
       phone: contactNumber,
@@ -137,25 +142,37 @@ exports.signup = async (req, res) => {
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${FullName} ${FullName}`,
     });
 
-    //create token for token
+    // Generate a unique session ID (you can use a library or generate it as per your needs)
+    const session_id = generateUniqueSessionId(contactNumber, user._id);
+
+    // Create a new session in the database and set the end_time
+    const session = await Session.create({
+      session_id,
+      user_id: user._id,
+      phone_number: contactNumber,
+    });
+
+    // Include the session ID in the JWT payload
     const payload = {
       phone: user.phone,
       id: user._id,
       role: user.accountType,
+      session_id: session.session_id,
     };
 
-    //payload , secretkey ,options
+    // Create a JWT token with a 1-week expiration
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "1w",
     });
     user.token = token;
 
-    //create cookie
+    // Create a cookie
     const options = {
-      maxAge: 10 * 24 * 60 * 60 * 1000, // Expires after 3 days
+      maxAge: 7 * 24 * 60 * 60 * 1000, // Expires after 1 week
       httpOnly: true,
     };
     user.password = undefined;
+
     return res.cookie("token", token, options).status(200).json({
       success: true,
       token,
@@ -195,10 +212,22 @@ exports.login = async (req, res) => {
     //compare password
     if (await bcrypt.compare(password, user.password)) {
       // create JWT tokens
+      await Session.deleteMany({ phone_number: phoneNumber });
+      const session_id = generateUniqueSessionId(phoneNumber, user._id);
+      const newSession = new Session({
+        session_id,
+        user_id: user._id,
+        phone_number: phoneNumber,
+      });
+
+      await newSession.save();
+
       const payload = {
         email: user.email,
         id: user._id,
         role: user.accountType,
+        session_id: newSession.session_id, // Include the new session ID in the token payload
+        phone: user.phone,
       };
 
       //payload , secretkey ,options

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   // Define the role field with type String and enum values of "Admin", "Gammer"
   accountType: {
     type: String,
-    default: "Gammer",
+    default: "Gamer",
   },
 
   active: {
