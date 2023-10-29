@@ -48,7 +48,7 @@ exports.decreaseCoin = async (req, res) => {
     }
 
     // Update lastTournamentFee and tournamentStreak
-    user.lastTournamentFee = count;
+    user.lastTournamentFee = Amount;
     user.tournamentStreak = 0;
 
     // Save the updated user object back to the database
@@ -109,11 +109,13 @@ exports.increaseCoin = async (req, res) => {
     }
 
     // Set lastTournamentFee to the count
-    user.lastTournamentFee = count;
+    user.lastTournamentFee = Amount;
 
     // Increment tournamentStreak by one (with a maximum of 3)
     if (user.tournamentStreak < 3) {
       user.tournamentStreak += 1;
+    } else {
+      user.tournamentStreak = 0;
     }
 
     // Save the updated user object back to the database
