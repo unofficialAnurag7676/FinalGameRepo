@@ -66,7 +66,6 @@ exports.paymetnSuccess = async (request, response) => {
 
       if (session) {
         const additionalCoins = checkOutDone.amount_total / 100;
-        console.log(additionalCoins, "may additional coin hu");
         await USER.findByIdAndUpdate(session.userID, {
           $inc: { currentCoin: additionalCoins },
         });
