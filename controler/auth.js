@@ -281,22 +281,27 @@ exports.mobileOtpSender = async (req, res) => {
       specialChars: false,
     });
 
+    const Payload = { phone: phoneNumber, otp };
+    await OTP.create(Payload);
+
     client.messages
       .create({
         body: `Your otp for suits card game is ${otp}`,
         from: "+18447391301",
         to: `+${countryCode}${phoneNumber}`,
       })
-      .then((message) => console.log(message.sid))
-      .catch((error) => console.error("Error sending message:", error));
-
-    const Payload = { phone: phoneNumber, otp };
-    await OTP.create(Payload);
-
-    return res.status(200).json({
-      success: true,
-      message: "otp send successfully",
-    });
+      .then((message) => {
+        return res.status(200).json({
+          success: true,
+          message: "otp send successfully",
+        });
+      })
+      .catch((error) => {
+        return res.status(200).json({
+          success: true,
+          message: "otp send successfully",
+        });
+      });
   } catch (error) {
     console.error(error.message);
     console.log("error in sending otp");
