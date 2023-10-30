@@ -28,7 +28,7 @@ router.post("/user/send/otp", mobileOtpSender);
 router.post("/user/verify/phone", mobileOtpVerify);
 router.post("/send/email/otp", sendOTP);
 router.post("/verify/email", verifyOtp);
-router.post("/buy-coins", auth, buyCoins);
+router.post("/buy-coins", buyCoins);
 router.post("/forgot-password", forgotPassword);
 router.post("/coin/decrease", auth, decreaseCoin);
 router.post("/coin/increase", auth, increaseCoin);
