@@ -57,6 +57,7 @@ exports.paymetnSuccess = async (request, response) => {
     return;
   }
 
+  console.log(event);
   // Handle the event
   switch (event.type) {
     case "checkout.session.completed":
@@ -70,7 +71,6 @@ exports.paymetnSuccess = async (request, response) => {
           $inc: { currentCoin: additionalCoins },
         });
       }
-
       break;
 
     case "payment_intent.succeeded":
